@@ -6,6 +6,7 @@ import { NavbarIcons } from "./NavbarIcons";
 interface NavbarProps {
     currentStep: number;
     onStepChange: (step: number) => void;
+    className?: string;
 }
 
 const steps = [
@@ -16,7 +17,7 @@ const steps = [
     { id: 5, label: "Impact" },
 ];
 
-export const Navbar: React.FC<NavbarProps> = ({ currentStep, onStepChange }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentStep, onStepChange, className = "" }) => {
     const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
     const getIconState = (stepId: number) => {
@@ -26,53 +27,47 @@ export const Navbar: React.FC<NavbarProps> = ({ currentStep, onStepChange }) => 
     };
 
     return (
-        <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
-            <div className="flex items-center gap-1 sm:gap-4 px-6 h-12 relative">
-                {steps.map((step, index) => (
-                    <React.Fragment key={step.id}>
-                        {/* Step Icon */}
-                        <div
-                            className="relative group cursor-pointer flex flex-col items-center"
-                            onMouseEnter={() => setHoveredStep(step.id)}
-                            onMouseLeave={() => setHoveredStep(null)}
-                            onClick={() => onStepChange(step.id)}
-                        >
-                            <NavbarIcons
-                                step={step.id as any}
-                                state={getIconState(step.id)}
-                                className="w-6 h-6 sm:w-8 sm:h-8 transition-all duration-300"
-                            />
-                        </div>
+        <nav className={`fixed top-12 left-0 w-full z-50 flex items-center justify-center p-[10px] ${className}`}>
+            <div className="flex items-start relative gap-0">
+                {steps.map((step, index) => {
+                    const isActive = currentStep === step.id;
+                    const isHovered = hoveredStep === step.id;
+                    const isLabelVisible = isActive || isHovered;
 
-                        {/* Progress Line */}
-                        {index < steps.length - 1 && (
-                            <div className="w-8 sm:w-12 h-px relative bg-white/20">
-                                <div
-                                    className={`absolute h-full bg-white transition-all duration-500 ease-out ${step.id < currentStep ? "w-full" : "w-0"
-                                        }`}
-                                />
-                                {/* Visual Dotted Line for future states */}
-                                <div className="absolute inset-0 border-t border-dotted border-white/40" />
+                    return (
+                        <div key={step.id} className="flex items-start relative shrink-0">
+                            <div
+                                className="flex flex-col gap-[9.676px] items-start relative shrink-0 cursor-pointer group"
+                                onMouseEnter={() => setHoveredStep(step.id)}
+                                onMouseLeave={() => setHoveredStep(null)}
+                                onClick={() => onStepChange(step.id)}
+                            >
+                                <div className="flex items-center overflow-clip relative shrink-0 w-full">
+                                    <NavbarIcons
+                                        step={step.id as any}
+                                        state={getIconState(step.id)}
+                                        className="shrink-0 size-[40.958px] transition-transform duration-300 group-hover:scale-110"
+                                    />
+                                    {/* Line connecting to next icon (only if not last) */}
+                                    {index < steps.length - 1 && (
+                                        <div className={`h-0 relative shrink-0 w-[25.294px] transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-40"}`}>
+                                            <div className="absolute top-0 left-0 right-0 h-[2.6px] bg-white transform -translate-y-1/2" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Label - Only visible if active or hovered */}
+                                <div className={`transition-all duration-500 overflow-hidden ${isLabelVisible ? "h-[53.216px] opacity-100" : "h-0 opacity-0"}`}>
+                                    <div className="flex items-center justify-center pr-[24.189px] relative mt-[2px]">
+                                        <p className="font-['Haas_Grot_Disp_R_Trial',sans-serif] italic leading-[normal] relative shrink-0 text-[44.73px] text-white whitespace-nowrap" style={{ fontStyle: 'italic', fontWeight: 100 }}>
+                                            {step.label}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                    </React.Fragment>
-                ))}
-            </div>
-
-            {/* Dynamic Title (Neue Haas Grotesk style) */}
-            <div className="h-8 flex items-center justify-center overflow-hidden">
-                {steps.map((step) => (
-                    <span
-                        key={step.id}
-                        className={`absolute transition-all duration-500 ease-in-out text-xl sm:text-2xl font-light italic tracking-tight text-white ${(hoveredStep || currentStep) === step.id
-                                ? "opacity-100 translate-y-0"
-                                : "opacity-0 translate-y-4"
-                            }`}
-                        style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300 }}
-                    >
-                        {step.label}
-                    </span>
-                ))}
+                        </div>
+                    );
+                })}
             </div>
         </nav>
     );
