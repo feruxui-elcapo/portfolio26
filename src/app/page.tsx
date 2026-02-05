@@ -1,47 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import ProjectShowcase from "@/components/ProjectShowcase";
-import Navbar from "@/components/Navbar";
+import { Navbar } from "@/components/Navbar";
+import { ProjectSection } from "@/components/ProjectSection";
 import NavigationArrow from "@/components/NavigationArrow";
-
-const projectData = [
-  {
-    id: 1,
-    title: <React.Fragment>Motor de reserva <br /><span className="italic font-thin text-gray-400">y página web.</span></React.Fragment>,
-    description: "ModHotels, reconocido hotel de 4 estrellas en Mendoza, se renueva con un motor de reservas CRM para optimizar su gestión y fomentar las reservas directas, reflejando su sofisticación y servicios premium.",
-    tags: ["Producto", "Diseño", "Desarrollo"],
-    videoUrl: "https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
-  },
-  {
-    id: 2,
-    title: <React.Fragment>Desafío <br /><span className="italic font-thin text-gray-400">del proyecto.</span></React.Fragment>,
-    description: "El principal desafío fue integrar un sistema de reservas complejo sin sacrificar la elegancia y la experiencia de usuario que caracteriza a la marca ModHotels.",
-    tags: ["UX Research", "Estrategia"],
-    videoUrl: "https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
-  },
-  {
-    id: 3,
-    title: <React.Fragment>Producto <br /><span className="italic font-thin text-gray-400">final.</span></React.Fragment>,
-    description: "Interfaz intuitiva, rápida y responsive que permite a los usuarios reservar en pocos pasos, aumentando la conversión significativamente.",
-    tags: ["UI Design", "Frontend"],
-    videoUrl: "https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
-  },
-  {
-    id: 4,
-    title: <React.Fragment>Solución <br /><span className="italic font-thin text-gray-400">técnica.</span></React.Fragment>,
-    description: "Implementación con Next.js y Tailwind para asegurar performance, con integración directa a CRM de terceros.",
-    tags: ["Development", "API"],
-    videoUrl: "https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
-  },
-  {
-    id: 5,
-    title: <React.Fragment>Impacto <br /><span className="italic font-thin text-gray-400">en el negocio.</span></React.Fragment>,
-    description: "Aumento del 40% en reservas directas y reducción del 20% en consultas administrativas gracias a la claridad de la información.",
-    tags: ["Business", "Analytics"],
-    videoUrl: "https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
-  }
-];
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -58,19 +20,19 @@ export default function Home() {
   // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') handleNext();
-      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Scroll Navigation (Debounced)
+  // Scroll Navigation (Debounced with direction check)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
+      if (Math.abs(e.deltaY) < 10) return; // Ignore small scrolls
       if (isScrolling) return;
 
       setIsScrolling(true);
@@ -82,35 +44,76 @@ export default function Home() {
 
       timeoutId = setTimeout(() => {
         setIsScrolling(false);
-      }, 1000); // 1s debounce
+      }, 1200); // 1.2s delay for smoother transition feel
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener("wheel", handleWheel);
     return () => {
-      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener("wheel", handleWheel);
       clearTimeout(timeoutId);
     };
   }, [isScrolling, handleNext, handlePrev]);
 
-  const currentData = projectData[currentStep - 1];
-
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] overflow-hidden transition-colors duration-500">
-      <Navbar currentStep={currentStep} onStepChange={setCurrentStep} />
+    <main className="relative h-screen w-full bg-[#0a0a0a] overflow-hidden text-white font-sans selection:bg-purple-500/30">
+      {/* Background Video (Unified for all projects to avoid flash) */}
+      <div className="fixed inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-30 bg-black"
+        >
+          <source
+            src="https://firebasestorage.googleapis.com/v0/b/siconm-40cbd.firebasestorage.app/o/project-e892b18a-e553-4463-aacf-c809152b0d02.mp4?alt=media&token=e0aa0b16-f3d9-44bc-9aa5-912d41809e12"
+            type="video/mp4"
+          />
+        </video>
+        {/* Dark Vignette Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+      </div>
 
-      {/* Navigation Arrows */}
-      <NavigationArrow direction="left" onClick={handlePrev} visible={currentStep > 1} />
-      <NavigationArrow direction="right" onClick={handleNext} visible={currentStep < 5} />
+      {/* Navbar Container */}
+      <div className="relative z-50">
+        <Navbar currentStep={currentStep} onStepChange={setCurrentStep} />
+      </div>
 
-      {/* Content with Transition Key */}
-      <div key={currentStep} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <ProjectShowcase
-          title={currentData.title}
-          description={currentData.description}
-          tags={currentData.tags}
-          videoUrl={currentData.videoUrl}
+      {/* Side Navigation Arrows */}
+      <NavigationArrow
+        direction="left"
+        onClick={handlePrev}
+        visible={currentStep > 1}
+        className="hidden md:flex left-8 border-none bg-transparent hover:bg-white/5"
+      />
+      <NavigationArrow
+        direction="right"
+        onClick={handleNext}
+        visible={currentStep < 5}
+        className="hidden md:flex right-8 border-none bg-transparent hover:bg-white/5"
+      />
+
+      {/* Mobile-only Arrow Indicator (Bottom right) */}
+      <div className="md:hidden fixed bottom-8 right-8 z-50">
+        <NavigationArrow
+          direction="right"
+          onClick={handleNext}
+          visible={currentStep < 5}
+          className="relative inset-0"
         />
       </div>
+
+      {/* Unique layouts per step */}
+      <div
+        key={currentStep}
+        className="relative z-10 w-full h-full pt-20 animate-in fade-in zoom-in-95 duration-1000 ease-out"
+      >
+        <ProjectSection step={currentStep} />
+      </div>
+
+      {/* Decorative corner elements (as seen in Figma) */}
+      <div className="fixed top-0 left-0 w-32 h-32 border-l border-t border-white/5 m-8 pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-32 h-32 border-r border-b border-white/5 m-8 pointer-events-none" />
     </main>
   );
 }
